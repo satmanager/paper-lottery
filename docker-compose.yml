@@ -9,10 +9,14 @@ services:
       - POSTGRES_PASSWORD=postgres
   web:
     build: .
-    command: bash -c "python manage.py makemigrations lottery && python manage.py migrate  &&  python manage.py runserver 0.0.0.0:80"
+    command: bash -c "python manage.py makemigrations lottery && python manage.py migrate  && celery -A lottery.tasks worker --loglevel=INFO &&  python manage.py runserver 0.0.0.0:80"
     volumes:
       - .:/code
     ports:
       - "80:80"
     depends_on:
       - db
+  rabbit:      
+    image: rabbitmq
+    ports:
+      - "5672:5672"
